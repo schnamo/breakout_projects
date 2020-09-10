@@ -56,30 +56,53 @@ width = rgbmatrix5x5.width
 rgbmatrix5x5.clear()
 rgbmatrix5x5.show()
 
-if 1 == 1:
-    average_over = 5
-    bpm_vals = [0 for x in range(average_over)]
-    last_beat = time.time()
+### function for lighting up RGB breakout with random values
+def light_up_rnd():
+    
+    rand_mat = numpy.random.rand(width, height)
+    for y in range(height):
+        for x in range(width):
+            h = 0.1 * rand_mat[x, y]
+            s = 0.8
+            v = rand_mat[x, y]
+            r, g, b = [int(c * 255) for c in colorsys.hsv_to_rgb(h, s, v)]
+            rgbmatrix5x5.set_pixel(x, y, r, g, b)
+    rgbmatrix5x5.show()
+    rgbmatrix5x5.clear()
+    rgbmatrix5x5.show()
 
-    while running:
-        t = time.time()
-        samples = max30105.get_samples()
-        if samples is not None:
-            for i in range(0, len(samples), 2):
-                ir = samples[i + 1]
-                beat_detected = hr.check_for_beat(ir)
-                if beat_detected:
-                    print("beep")
-                    rand_mat = numpy.random.rand(width, height)
-                    for y in range(height):
-                        for x in range(width):
-                            h = 0.1 * rand_mat[x, y]
-                            s = 0.8
-                            v = rand_mat[x, y]
-                            r, g, b = [int(c * 255) for c in colorsys.hsv_to_rgb(h, s, v)]
-                            rgbmatrix5x5.set_pixel(x, y, r, g, b)
-                    rgbmatrix5x5.show()
-                    rgbmatrix5x5.clear()
-                    time.sleep(0.05)
-                    rgbmatrix5x5.show()
+### function for lighting up RGB breakout 
+def light_up_mini():
+    
+    rgbmatrix5x5.set_all(255, 0, 0)
+    rgbmatrix5x5.show()
+    rgbmatrix5x5.clear()
+    rgbmatrix5x5.show()
+    
+
+### checking out on_beat()
+def beat_handler(beat_detected, bpm, bpm_avg):
+    
+    if beat_detected:
+        print(bpm_avg)
+        light_up()
+        
+### checking out check_for_beat()
+def check_beat(hr):
+    
+    t = time.time()
+    samples = max30105.get_samples()
+    if samples is not None:
+        for i in range(0, len(samples), 2):
+            ir = samples[i + 1]
+            beat_detected = hr.check_for_beat(ir)
+            if beat_detected:
+                print("beep")
+                light_up_mini()
+
+
+
+while running:
+    #hr.on_beat(beat_handler)
+    check_beat(hr)
 
